@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BYOP: Build Your Own Pizza</title>
+<style>
+:root{--cv:#ece3d6;--bg:#faf4ea;--card:#fff;--ink:#261d14;--mute:#7a6a5a;--line:#e3d6c4;--acc:#e8843a;--acc2:#c96a22;--ctr:#e6dac8;--tk:#fffbec;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--cv:#0f0c09;--bg:#1a1511;--card:#261f19;--ink:#f3e9dc;--mute:#b3a290;--line:#3d3228;--ctr:#2f261e;--tk:#2b2318;color-scheme:dark}}
+:root[data-theme="dark"]{--cv:#0f0c09;--bg:#1a1511;--card:#261f19;--ink:#f3e9dc;--mute:#b3a290;--line:#3d3228;--ctr:#2f261e;--tk:#2b2318;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--cv);color:var(--ink);font-family:"Helvetica Neue",Arial,sans-serif;font-size:15px}
+.app{max-width:430px;min-height:100vh;margin:0 auto;background:var(--bg);padding:14px 16px 24px;display:flex;flex-direction:column;gap:12px}
+@media (min-width:500px){.app{margin:16px auto;min-height:0;border-radius:28px;box-shadow:0 8px 40px rgba(0,0,0,.18);min-height:820px}}
+h1{font-size:28px;margin:4px 0}h3{font-size:13px;margin:4px 0 0;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+p{margin:0;color:var(--mute)}
+.hud{display:flex;gap:8px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:5px 12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
+.coin{width:12px;height:12px;border-radius:50%;background:#f5c842;border:1px solid #b8901e;display:inline-block}
+.steps{display:flex;justify-content:space-between;position:relative;padding:0 6px}
+.steps:before{content:"";position:absolute;left:30px;right:30px;top:9px;height:2px;background:var(--line)}
+.st{position:relative;text-align:center;font-size:10px;color:var(--mute);width:60px}
+.st i{display:block;width:18px;height:18px;border-radius:50%;background:var(--card);border:2px solid var(--line);margin:0 auto 4px;position:relative}
+.st.d i{background:var(--acc);border-color:var(--acc)}.st.c i{border-color:var(--acc);border-width:3px}.st.c{color:var(--ink);font-weight:700}
+.ticket{background:var(--tk);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.ticket small{display:flex;justify-content:space-between;color:var(--mute);font-weight:700;font-size:10px;letter-spacing:.05em;margin-bottom:6px}
+.tags{display:flex;flex-wrap:wrap;gap:5px}.tags span{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:2px 9px;font-size:11px}
+.stage{background:var(--ctr);border-radius:16px;padding:16px;display:flex;justify-content:center}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:18px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+.chip.on{border-color:var(--acc);background:var(--acc);color:#fff;font-weight:700}
+.bins{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.bin{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 2px;font:inherit;font-size:10px;cursor:pointer;text-align:center}
+.bin b{display:block;width:26px;height:26px;border-radius:50%;margin:0 auto 4px;border:1px solid #5a4630}
+.bin small{display:block;color:var(--mute);font-size:9px}.bin.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.btn{background:var(--acc);color:#fff;border:0;border-radius:12px;padding:14px 16px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;width:100%}
+.btn:disabled{opacity:.45;cursor:default}.btn.ghost{background:transparent;color:var(--acc2);border:2px solid var(--acc)}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.tot{display:flex;justify-content:space-between;font-weight:700}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=text]{width:100%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:11px;font:inherit}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.card small{color:var(--mute);display:block;font-size:11px}
+.sign{align-self:center;background:var(--card);border:2px solid #96703c;border-radius:8px;padding:8px 18px;font-weight:700;margin-top:8px}
+.meter{display:flex;height:26px;border-radius:7px;overflow:hidden;position:relative;border:1px solid var(--line)}
+.meter div:nth-child(1){width:40%;background:var(--line)}.meter div:nth-child(2){width:30%;background:#9fd3b4}.meter div:nth-child(3){width:30%;background:#e3aaa0}
+.meter u{position:absolute;top:-3px;bottom:-3px;width:4px;background:var(--ink);left:0;border-radius:2px}
+.lab{display:flex;font-size:11px;color:var(--mute)}.lab span:nth-child(1){width:40%}.lab span:nth-child(2){width:30%}
+.oven{background:#4e4e52;border-radius:18px;padding:14px;display:flex;justify-content:center}
+.oven div{background:#ffc878;border:3px solid #282828;border-radius:12px;padding:10px}
+#hold{width:96px;height:96px;border-radius:50%;border:3px solid var(--acc2);background:var(--acc);color:#fff;font:inherit;font-weight:700;font-size:16px;align-self:center;touch-action:none;user-select:none;-webkit-user-select:none}
+.box{background:#deb98c;border:2px solid #96703c;border-radius:6px;padding:14px;display:flex;justify-content:center}
+.star{color:var(--acc);font-size:24px;text-align:center}
+.tl{display:flex;flex-direction:column;gap:16px;padding:6px 4px}.tl div{display:flex;gap:12px;align-items:center;color:var(--mute)}
+.tl i{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none}.tl .d i{background:var(--acc);border-color:var(--acc)}.tl .c i{border:4px solid var(--acc)}
+.tl .d,.tl .c{color:var(--ink)}.tl .c{font-weight:700}
+.note{font-size:12px;color:var(--mute);text-align:center;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+var T=[["Mushroom","#d9c4a8"],["Olives","#4a5240"],["Onion","#c9a9d4"],["Pepper","#6fae5a"],["Jalapeño","#85bb64"],["Corn","#f2cf50"],["Basil","#4f9a4a"],["Chicken","#ebc9a0"],["Paneer","#f8efd8"],["Tomato","#d8543e"]];
+var SC={Tomato:"#cd503c",Pesto:"#6f9a4a",BBQ:"#7a3b22"};
+var S={step:"home",size:"Medium",crust:"Thin",sauce:"Tomato",cov:70,cheese:"Mozzarella",tops:[],bake:0,score:0,coins:120,name:"My Pizza #1",addr:"Home, Noida",pay:"UPI",track:0};
+var tm=null,tk=null;
+function q(s){return document.querySelector(s)}
+function L(a,b,t){return a.map(function(v,i){return Math.round(v+(b[i]-v)*t)})}
+function tone(b,r,g,u){return b<40?L(r,g,b/40):b<=70?g:L(g,u,(b-70)/30)}
+function price(){return {Small:249,Medium:349,Large:449}[S.size]+(S.crust==="Thick"?30:0)+(S.cheese==="Extra"?40:0)+S.tops.length*20}
+function pizza(b,sz,o){
+o=o||{};var tops=o.tops||S.tops;
+var cr="rgb("+tone(b,[242,216,165],[222,170,95],[96,60,36])+")",dg="rgb("+tone(b,[250,232,190],[235,190,110],[120,80,48])+")";
+var n=S.crust==="Thick"?82:90;
+var h='<svg viewBox="0 0 220 220" width="'+sz+'" height="'+sz+'" role="img" aria-label="Your pizza"><circle cx="110" cy="110" r="102" fill="'+cr+'" stroke="#96703c" stroke-width="2.5"/><circle cx="110" cy="110" r="'+n+'" fill="'+dg+'"/>';
+if(!o.plain){
+h+='<circle cx="110" cy="110" r="'+((n-6)*S.cov/100)+'" fill="'+SC[S.sauce]+'"/>';
+if(S.cheese!=="None")h+='<circle cx="110" cy="110" r="'+((n-10)*S.cov/100*(S.cheese==="Extra"?1:.92))+'" fill="'+(S.cheese==="Extra"?"#f6cf5a":"#f5d676")+'"/>';
+tops.forEach(function(t,i){var c=T.filter(function(x){return x[0]===t})[0][1];for(var j=0;j<5;j++){var k=i*5+j,a=k*2.399,r=Math.sqrt((k%40+.6)/40)*(n-16);h+='<circle cx="'+(110+r*Math.cos(a))+'" cy="'+(110+r*Math.sin(a))+'" r="7" fill="'+c+'" stroke="#5a4630"/>'}})}
+return h+"</svg>"}
+function hud(){return '<div class="hud"><span class="pill">Level 3</span><span class="pill"><i class="coin"></i>'+S.coins+'</span></div>'}
+function steps(c){return '<div class="steps">'+["Dough","Sauce","Toppings","Bake"].map(function(n,i){return '<div class="st '+(i<c?"d":i===c?"c":"")+'"><i></i>'+n+'</div>'}).join("")+'</div>'}
+function ticket(){var t=[S.size,S.crust+" crust",S.sauce+" sauce"];if(S.cheese!=="None")t.push(S.cheese);t=t.concat(S.tops);return '<div class="ticket"><small><span>MY PIZZA</span><span>Order #1024</span></small><div class="tags">'+t.map(function(x){return "<span>"+x+"</span>"}).join("")+'</div></div>'}
+function chips(k,l){return '<div class="row">'+l.map(function(v){return '<button class="chip '+(S[k]===v?"on":"")+'" data-a="set" data-k="'+k+'" data-v="'+v+'">'+v+'</button>'}).join("")+'</div>'}
+function foot(label,to,extra){return '<div class="foot"><div class="tot"><span>Price</span><span>₹ '+price()+'</span></div><button class="btn" data-a="go" data-v="'+to+'">'+label+'</button>'+(extra||"")+'</div>'}
+var V={
+home:function(){return '<div class="sign">BYOP PIZZERIA</div><h1>Build your own pizza.</h1><p>Play the pizza game, then order the exact pizza you made.</p><div class="stage">'+pizza(40,230,{tops:["Mushroom","Olives","Pepper"]})+'</div><div class="foot"><button class="btn" data-a="go" data-v="dough">▶ Start making</button></div>'},
+dough:function(){return hud()+steps(0)+ticket()+'<div class="stage" id="st">'+pizza(0,210,{plain:1})+'</div><h3>Size</h3>'+chips("size",["Small","Medium","Large"])+'<h3>Crust</h3>'+chips("crust",["Thin","Classic","Thick"])+foot("Next: Sauce & cheese ▸","sauce")},
+sauce:function(){return hud()+steps(1)+ticket()+'<div class="stage" id="st">'+pizza(0,210,{tops:[]})+'</div><h3>Sauce</h3>'+chips("sauce",["Tomato","Pesto","BBQ"])+'<h3>Coverage <span id="cv">'+S.cov+'%</span></h3><input type="range" id="rg" min="20" max="100" value="'+S.cov+'"><h3>Cheese</h3>'+chips("cheese",["None","Mozzarella","Extra"])+foot("Next: Toppings ▸","tops")},
+tops:function(){return hud()+steps(2)+ticket()+'<div class="stage">'+pizza(0,210)+'</div><h3>Tap to add or remove (+₹20 each)</h3><div class="bins">'+T.map(function(t){return '<button class="bin '+(S.tops.indexOf(t[0])>-1?"on":"")+'" data-a="top" data-v="'+t[0]+'"><b style="background:'+t[1]+'"></b>'+t[0]+'<small>+₹20</small></button>'}).join("")+'</div>'+foot("Next: Bake ▸","bake")},
+bake:function(){return hud()+steps(3)+'<div class="oven"><div id="ov">'+pizza(S.bake,170)+'</div></div><p style="text-align:center" id="vd">Hold the button. Let go in the green zone.</p><div class="meter"><div></div><div></div><div></div><u id="mk" style="left:'+S.bake+'%"></u></div><div class="lab"><span>Raw</span><span>Perfect</span><span>Burnt</span></div><button id="hold">Hold</button><div class="foot"><button class="btn" id="take" data-a="take" '+(S.bake?"":"disabled")+'>Take out of oven</button><button class="btn ghost" data-a="rebake">Start over</button></div>'},
+ready:function(){var n=Math.max(1,Math.round(S.score/20));return hud()+'<h1 style="text-align:center">Your pizza is ready!</h1><div class="box">'+pizza(S.bake,200)+'</div><input type="text" id="nm" value="'+S.name+'" aria-label="Pizza name"><div class="star">'+"★".repeat(n)+"☆".repeat(5-n)+'</div><p style="text-align:center">Pizza score '+S.score+' · '+verdict()+' · +'+S.earn+' coins</p><div class="card"><small>Recipe</small>'+[S.size,S.crust,S.sauce,S.cheese].concat(S.tops).join(" · ")+'</div><div class="foot"><div class="tot"><span>Price</span><span>₹ '+price()+'</span></div><button class="btn" data-a="go" data-v="pay">Place an Order for my Custom Pizza</button><button class="btn ghost" data-a="again">Play again</button></div>'},
+pay:function(){var tot=price()+30;return '<h1>Checkout</h1><div class="card"><small>Deliver to</small><input type="text" id="ad" value="'+S.addr+'" aria-label="Address"></div><div class="card"><small>Your order goes to</small><b>Pizza place name · 2.1 km</b><small>Est. 35 min. They receive your exact recipe.</small></div><div class="card"><div class="tot" style="font-weight:400"><span>'+S.name+' ('+S.size+')</span><span>₹ '+price()+'</span></div><div class="tot" style="font-weight:400"><span>Delivery fee</span><span>₹ 30</span></div><div class="tot"><span>Total</span><span>₹ '+tot+'</span></div></div><h3>Payment</h3>'+chips("pay",["UPI","Card","Cash on delivery"])+'<p class="note">This is a concept prototype. No real order is placed and nothing is charged.</p><div class="foot"><button class="btn" data-a="confirm">Confirm order · ₹ '+tot+'</button></div>'},
+track:function(){var s=["Order sent to pizza place","Your pizza is being made","Out for delivery","Delivered"];return '<h1>Order #1024</h1><p>'+(S.track<3?"Arrives in about "+(35-S.track*10)+" min":"Delivered. Enjoy! (Demo only, no real pizza was ordered.)")+'</p><div class="card tl">'+s.map(function(x,i){return '<div class="'+(i<S.track?"d":i===S.track?"c":"")+'"><i></i>'+x+'</div>'}).join("")+'</div><div class="foot"><button class="btn ghost" data-a="again">Build another pizza</button></div>'}
+};
+function verdict(){return S.bake<40?"Undercooked":S.bake<=70?"Perfect bake":"Burnt"}
+function go(s){S.step=s;clearInterval(tk);var a=q("#app");a.innerHTML=V[s]();if(s==="home"||s==="track")a.insertAdjacentHTML("beforeend",'<p class="note">BYOP is a concept prototype by Anushka.</p>');
+if(s==="track"&&S.track<3)tk=setInterval(function(){S.track++;go("track")},3500);window.scrollTo(0,0)}
+function upd(){q("#ov").innerHTML=pizza(S.bake,170);q("#mk").style.left=S.bake+"%";q("#vd").textContent=verdict();q("#take").disabled=false}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-a]");if(!b)return;var a=b.dataset.a,v=b.dataset.v;
+if(a==="go")go(v);
+else if(a==="set"){S[b.dataset.k]=v;go(S.step)}
+else if(a==="top"){var i=S.tops.indexOf(v);if(i>-1)S.tops.splice(i,1);else S.tops.push(v);go("tops")}
+else if(a==="rebake"){S.bake=0;go("bake")}
+else if(a==="take"){var k=S.bake;S.score=k<40?Math.round(40+k):k<=70?95:Math.max(30,Math.round(95-(k-70)*2));S.earn=k>=40&&k<=70?40:10;S.coins+=S.earn;go("ready")}
+else if(a==="confirm"){S.track=0;go("track")}
+else if(a==="again"){S.tops=[];S.bake=0;S.cov=70;S.cheese="Mozzarella";S.track=0;go("dough")}});
+document.addEventListener("input",function(e){if(e.target.id==="rg"){S.cov=+e.target.value;q("#cv").textContent=S.cov+"%";q("#st").innerHTML=pizza(0,210,{tops:[]})}
+if(e.target.id==="nm")S.name=e.target.value;if(e.target.id==="ad")S.addr=e.target.value});
+document.addEventListener("pointerdown",function(e){if(e.target.id==="hold"&&!tm){tm=setInterval(function(){if(S.bake<100){S.bake++;upd()}else{clearInterval(tm);tm=null}},55)}});
+["pointerup","pointercancel","pointerleave"].forEach(function(n){document.addEventListener(n,function(){if(tm){clearInterval(tm);tm=null}})});
+go("home");
+</script>
+</body>
+</html>
